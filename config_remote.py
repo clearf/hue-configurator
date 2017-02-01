@@ -302,7 +302,7 @@ class Room:
                     }}
                 ]
             }}
-        }}""" .format(sensor=self.sensor, group=self.group, on_scene=self.on_scene, bright_scene=self.bright_scene, schedule=self.schedule_id)
+        }}""" #.format(sensor=self.sensor, group=self.group, on_scene=self.on_scene, bright_scene=self.bright_scene, schedule=self.schedule_id)
         sensor_inputs = json.loads(sensor_string)
         pp.pprint(sensor_inputs)
 
