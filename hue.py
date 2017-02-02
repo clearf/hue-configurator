@@ -28,10 +28,34 @@ class Hue:
             try:
                 if  p.search(response[i]['name']):
                     print "##"
-                    print "%s %s %s" % (i, response[i]['name'], response[i])
+                    print "%s %s" % (i, response[i]['name'])
+                    pp.pprint(response[i])
             except KeyError:
                 pass
         print "###########"
+    def get_scene(self, name): 
+        print "Rules \n###########"
+        r = requests.get(self.url_for('scenes')+name)
+        response = r.json(); 
+        pp.pprint(response)
+    def update_scenes(self, scenes):
+        for scene in scenes:
+            if scene:
+                for light in scene['lightstates']:
+                    try: 
+                        r=requests.put(self.url_for('scenes/{0}/lightstates/{1}'.
+                            format(scene['id'], light)), 
+                                data=json.dumps(scene['lightstates'][light]))
+                        r.raise_for_status()
+                        response = r.json()
+                        try: 
+                            response[0]['success']
+                        except KeyError:
+                            raise Exception(r.text)
+                    except Exception as e:
+                        print r.status_code
+                        print r.text
+                        raise e
     def get_scenes_by_name(self, name): 
         p = re.compile(name)
         r = requests.get(self.url_for('scenes'))

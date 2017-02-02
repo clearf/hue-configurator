@@ -11,10 +11,10 @@ myHue = hue.Hue(config)
 #myHue.get_info_from_rules()
 #myHue.get_by_name(name='bedroom', api='schedules')
 #myHue.get_by_name(name='Torvald room', api='scenes')
-myHue.get_by_name(name='Bedroom', api='scenes')
+#myHue.get_by_name(name='Bedroom', api='scenes')
+#myHue.get_scene('KxhYA9mvU7ttL49')
 #myHue.get_by_name(name='Office', api='rules')
-myHue.get_rules_for_sensor(3)
-exit(0)
+#myHue.get_rules_for_sensor(3)
 
 
 #office_schedules = standard_schedules.copy()
@@ -52,7 +52,7 @@ bedroom = hue.Room({
             'location': 'Bedroom',
             'scenes': { 
                 'on': '8fd72847e-on-0',
-                'bright': '4cd503ee8-on-0'
+                'bright': 'KxhYA9mvU7ttL49'
             },
             'rules': house.standard_rules,
             'schedules': house.standard_schedules

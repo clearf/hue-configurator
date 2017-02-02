@@ -188,3 +188,26 @@ office_rules['off_hold_daylight'] = lambda self: {
                                       ],
                     'recycle': False,
                     'status': 'enabled'}
+
+
+morning_scenes = [
+        {
+            'id': 'KxhYA9mvU7ttL49',
+            'lightstates': {   '15': {   'bri': 1, 'on': True},
+                               '18': {   'on': False},
+                               '19': {   'on': False},
+                               '4': {   'bri': 1, 'on': True}
+            }
+        }
+]
+
+afternoon_scenes = [
+        {
+            'id': 'KxhYA9mvU7ttL49',
+            'lightstates': {   '15': {   'bri': 79, 'on': True},
+                               '18': {   'on': False},
+                               '19': {   'on': False},
+                               '4': {   'bri': 59, 'on': True}
+            }
+        }
+]
