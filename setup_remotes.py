@@ -11,9 +11,10 @@ myHue = hue.Hue(config)
 #myHue.get_info_from_rules()
 #myHue.get_by_name(name='bedroom', api='schedules')
 #myHue.get_by_name(name='Torvald room', api='scenes')
-#myHue.get_by_name(name='Office', api='scenes')
+myHue.get_by_name(name='Bedroom', api='scenes')
 #myHue.get_by_name(name='Office', api='rules')
 myHue.get_rules_for_sensor(3)
+exit(0)
 
 
 #office_schedules = standard_schedules.copy()
