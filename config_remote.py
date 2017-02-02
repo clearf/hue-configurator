@@ -129,26 +129,6 @@ hue.get_rules_for_sensor(3)
 #office_schedules = standard_schedules.copy()
 #office_schedules['on_schedule'] = xxx
 
-office_rules = standard_rules.copy()
-# ADD a rule: During the day, we turn off all the lights (for leaving the house)
-office_rules['off_hold_daylight'] = lambda self: {   
-                                    'actions': [   { 'address': '/groups/0/action',
-                                   'body': {   'on': False, 'transitiontime': 60},
-                                   'method': 'PUT'}],
-                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                          'operator': 'eq',
-                                          'value': '4003'},
-                                      {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                          'operator': 'dx'},
-                                      {   'value': "true",
-                                          'operator': 'eq',
-                                          'address': '/sensors/1/state/daylight'
-                                      }
-                                      
-                                      ],
-                    'recycle': False,
-                    'status': 'enabled'}
-
 office = Room({
             'sensor': 3,
             'group': 2, 
@@ -157,8 +137,8 @@ office = Room({
                 'bright': 'd258e36e1-on-0'
                 #'on_delay': 'OhBpAULnYeR6RPL'
             },
-            'rules': office_rules,
-            'schedules': standard_schedules
+            'rules': house.office_rules,
+            'schedules': house.standard_schedules
         }, hue);
 office.create_sensor_rules()
 
@@ -170,8 +150,8 @@ living_room = Room({
                 'on': 'db3fa697c-on-0',
                 'bright': 'b74e4019a-on-0'
                 },
-            'rules': office_rules,
-            'schedules': standard_schedules
+            'rules': house.office_rules,
+            'schedules': house.standard_schedules
         }, hue);
 living_room.create_sensor_rules()
 
@@ -183,8 +163,8 @@ bedroom = Room({
                 'on': '8fd72847e-on-0',
                 'bright': '4cd503ee8-on-0'
             },
-            'rules': standard_rules,
-            'schedules': standard_schedules
+            'rules': house.standard_rules,
+            'schedules': house.standard_schedules
         }, hue);
 bedroom.create_sensor_rules()
 

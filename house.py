@@ -4,9 +4,9 @@ import re
 def load_or_generate_config(config_file):
     config={}
     try:
-       with open(config_file, 'r') as f: 
-          config=json.load(f)
-          f.close()
+        with open(config_file, 'r') as f:
+            config=json.load(f)
+            f.close()
     except IOError as e:
         print 'Using default config'
         config = {
@@ -15,14 +15,14 @@ def load_or_generate_config(config_file):
                     'username': 'username'
                 }
         }
-        try: 
-          # If the config file doesn't exist, write it
+        try:
+            # If the config file doesn't exist, write it
             print "Writing config to file"
             with open(config_file, 'w') as f:
-              json.dump(config, f)
-              f.close()
+                json.dump(config, f)
+                f.close()
         except IOError as e:
-          print "Unable to write config: ", e
+            print "Unable to write config: ", e
     return config
 
 
@@ -50,16 +50,16 @@ standard_schedules = {
     }
 
 
-standard_rules = {   
-    'bright_hold': 
-        lambda self: {   
-            'actions': [   
+standard_rules = {
+    'bright_hold':
+        lambda self: {
+            'actions': [
                 {   'address': '/groups/{group}/action'.format(group=self.group),
                                   'body': {   'bri_inc': 30,
                                               'transitiontime': 9},
                                   'method': 'PUT'
                 }
-            ], 'conditions': [   
+            ], 'conditions': [
                  {   'address': '/sensors/{sensor}/state/buttonevent'.
                                     format(sensor=self.sensor),
                                              'operator': 'eq',
@@ -73,21 +73,22 @@ standard_rules = {
              'recycle': False,
              'status': 'enabled'
         },
-    'bright_short': 
+    'bright_short':
         lambda self: {
-            'actions': [   
-                {   
+            'actions': [
+                {
                     'address': '/groups/{group}/action'.
                         format(group=self.group),
                     'body': {   'scene': '{bright_scene}'.
                                     format(bright_scene=self.scenes['bright'])
                             },
                  'method': 'PUT'},
-                {   'address': '/schedules/{off_schedule_id}'.format(off_schedule_id=self.schedule_ids['off_schedule']),
+                {   'address': '/schedules/{off_schedule_id}'.
+                        format(off_schedule_id=self.schedule_ids['off_schedule']),
                    'body': {   'status': 'disabled'},
                    'method': 'PUT'}
                 ],
-            'conditions': [   
+            'conditions': [
                 {   'address': '/sensors/{sensor}/state/buttonevent'.
                         format(sensor=self.sensor),
                      'operator': 'eq',
@@ -97,18 +98,28 @@ standard_rules = {
               'operator': 'dx'}],
                         'recycle': False,
                         'status': 'enabled'},
-                'dim_hold': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
+    'dim_hold':
+                lambda self: {
+                    'actions': [
+                        {   'address': '/groups/{group}/action'.format(group=self.group),
                                        'body': {   'bri_inc': -30,
                                                    'transitiontime': 9},
-                                       'method': 'PUT'}],
-                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
+                                       'method': 'PUT'
+                                       }
+                        ],
+                    'conditions': [
+                        {   'address': '/sensors/{sensor}/state/buttonevent'.
+                            format(sensor=self.sensor),
                                           'operator': 'eq',
-                                          'value': '3001'},
+                                          'value': '3001'
+                                          },
                                       {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
                                           'operator': 'dx'}],
                     'recycle': False,
-                    'status': 'enabled'},
-                'off_hold': lambda self: {   'actions': [   {   'address': '/schedules/{off_schedule_id}'.format(
+                    'status': 'enabled'
+                    },
+        'off_hold':
+                    lambda self: {   'actions': [   {   'address': '/schedules/{off_schedule_id}'.format(
                         off_schedule_id=self.schedule_ids['off_schedule']),
                                        'body': {   'status': 'enabled'},
                                        'method': 'PUT'}],
@@ -141,8 +152,8 @@ standard_rules = {
                                       {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
                                           'operator': 'dx'}],
                     'recycle': False,
-                    'status': 'enabled'}, 
-                'on_hold': lambda self: {   'actions': [   
+                    'status': 'enabled'},
+                'on_hold': lambda self: {   'actions': [
                                                    {   'address': '/schedules/{schedule_id}'.format(schedule_id=self.schedule_ids['on_delay']),
                                                        'body': {   'status': 'enabled'},
                                                        'method': 'PUT'}],
@@ -158,7 +169,7 @@ standard_rules = {
 
 office_rules = standard_rules.copy()
 # ADD a rule: During the day, we turn off all the lights (for leaving the house)
-office_rules['off_hold_daylight'] = lambda self: {   
+office_rules['off_hold_daylight'] = lambda self: {
                                     'actions': [   { 'address': '/groups/0/action',
                                    'body': {   'on': False, 'transitiontime': 60},
                                    'method': 'PUT'}],
@@ -173,7 +184,7 @@ office_rules['off_hold_daylight'] = lambda self: {
                                           'operator': 'eq',
                                           'address': '/sensors/1/state/daylight'
                                       }
-                                      
+
                                       ],
                     'recycle': False,
                     'status': 'enabled'}
