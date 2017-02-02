@@ -79,11 +79,11 @@ class Room:
         self.hue = hue
     def delete_old_schedule_by_name(self, name):
         p = re.compile(name, re.IGNORECASE)
-        r = requests.get(hue.url_for('schedules'))
+        r = requests.get(self.hue.url_for('schedules'))
         response = r.json(); 
         for i in response:
             if p.match(response[i]['name']):
-                r = requests.delete("{0}{1}".format(hue.url_for('schedules'), i))
+                r = requests.delete("{0}{1}".format(self.hue.url_for('schedules'), i))
                 print r.text
     def create_schedules(self, delete=False):
         for i in self.schedule_generators:
@@ -114,60 +114,3 @@ class Room:
                     print r.status_code
                     print r.text
                     raise e
-
-###
-config = house.load_or_generate_config('./config')
-hue = Hue(config)
-#hue.get_info_from_rules()
-#hue.get_by_name(name='bedroom', api='schedules')
-#hue.get_by_name(name='Torvald room', api='scenes')
-#hue.get_by_name(name='Office', api='scenes')
-#hue.get_by_name(name='Office', api='rules')
-hue.get_rules_for_sensor(3)
-
-
-#office_schedules = standard_schedules.copy()
-#office_schedules['on_schedule'] = xxx
-
-office = Room({
-            'sensor': 3,
-            'group': 2, 
-            'location': "Office",
-            'scenes': {'on': 'd258e36e1-on-0',
-                'bright': 'd258e36e1-on-0'
-                #'on_delay': 'OhBpAULnYeR6RPL'
-            },
-            'rules': house.office_rules,
-            'schedules': house.standard_schedules
-        }, hue);
-office.create_sensor_rules()
-
-living_room = Room({
-            'sensor': 4,
-            'group': 3, 
-            'location': "Living Room",
-            'scenes': {
-                'on': 'db3fa697c-on-0',
-                'bright': 'b74e4019a-on-0'
-                },
-            'rules': house.office_rules,
-            'schedules': house.standard_schedules
-        }, hue);
-living_room.create_sensor_rules()
-
-bedroom = Room({
-            'sensor': 5,
-            'group': 4, 
-            'location': 'Bedroom',
-            'scenes': { 
-                'on': '8fd72847e-on-0',
-                'bright': '4cd503ee8-on-0'
-            },
-            'rules': house.standard_rules,
-            'schedules': house.standard_schedules
-        }, hue);
-bedroom.create_sensor_rules()
-
-# We have a second switch for the bedroom
-bedroom.sensor=6
-bedroom.create_sensor_rules()
