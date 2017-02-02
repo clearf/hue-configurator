@@ -2,6 +2,7 @@ import json
 import requests
 import re
 import pprint
+import house
 
 pp = pprint.PrettyPrinter(indent=4)
 def my_safe_repr(object, context, maxlevels, level):
@@ -10,31 +11,6 @@ def my_safe_repr(object, context, maxlevels, level):
         object = str(object)
     return pprint._safe_repr(object, context, maxlevels, level)
 pp.format = my_safe_repr
-
-
-def load_or_generate_config(config_file):
-    config={}
-    try:
-       with open(config_file, 'r') as f: 
-          config=json.load(f)
-          f.close()
-    except IOError as e:
-        print 'Using default config'
-        config = {
-                'hue_config': {
-                    'url': 'http://192.168.1.51/api/',
-                    'username': 'username'
-                }
-        }
-        try: 
-          # If the config file doesn't exist, write it
-            print "Writing config to file"
-            with open(config_file, 'w') as f:
-              json.dump(config, f)
-              f.close()
-        except IOError as e:
-          print "Unable to write config: ", e
-    return config
 
 class Hue: 
     def __init__(self,config): 
@@ -91,8 +67,6 @@ class Hue:
                 else:
                     print i, response[i]['name']
 
-
-
 class Room: 
     def __init__(self, room, hue):
         self.sensor = room['sensor']
@@ -141,117 +115,8 @@ class Room:
                     print r.text
                     raise e
 
-
-
 ###
-config = load_or_generate_config('./config')
-
-
-standard_schedules = {
-        'off_schedule': lambda self: {   'autodelete': False,
-            'command': {   'address': '/api/{username}/groups/{group}/action'.format(username=self.hue.username, group=self.group),
-                           'body': {   'on': False, 'transitiontime': 6000},
-                           'method': 'PUT'},
-            'description': 'turn lamps slowly off',
-            'localtime': 'PT00:05:00',
-            'status': 'disabled',
-            'name': '{location} slow off'.format(location=self.location)
-        },
-        'on_delay': lambda self: {   'autodelete': False,
-                    'command': {   'address': '/api/{username}/groups/{group}/action'.format(username=self.hue.username, group=self.group),
-                                   'body': {   'scene': self.scenes.get('on_delay', self.scenes['on'])},
-                                   'method': 'PUT'},
-                    'description': 'turn lamps slowly on',
-                    'localtime': 'PT00:05:00',
-                    'status': 'disabled',
-                    'name': '{location} slow on'.format(location=self.location)
-        }
-    }
-
-
-standard_rules = {   'bright_hold': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
-                                          'body': {   'bri_inc': 30,
-                                                      'transitiontime': 9},
-                                          'method': 'PUT'}],
-                       'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                             'operator': 'eq',
-                                             'value': '2001'},
-                                         {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                             'operator': 'dx'}],
-                       'recycle': False,
-                       'status': 'enabled'},
-                'bright_short': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
-                                           'body': {   'scene': '{bright_scene}'.format(bright_scene=self.scenes['bright'])},
-                                           'method': 'PUT'},
-                                       {   'address': '/schedules/{off_schedule_id}'.format(off_schedule_id=self.schedule_ids['off_schedule']),
-                                           'body': {   'status': 'disabled'},
-                                           'method': 'PUT'}],
-                        'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                              'operator': 'eq',
-                                              'value': '2002'},
-                                          {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                              'operator': 'dx'}],
-                        'recycle': False,
-                        'status': 'enabled'},
-                'dim_hold': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
-                                       'body': {   'bri_inc': -30,
-                                                   'transitiontime': 9},
-                                       'method': 'PUT'}],
-                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                          'operator': 'eq',
-                                          'value': '3001'},
-                                      {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                          'operator': 'dx'}],
-                    'recycle': False,
-                    'status': 'enabled'},
-                'off_hold': lambda self: {   'actions': [   {   'address': '/schedules/{off_schedule_id}'.format(
-                        off_schedule_id=self.schedule_ids['off_schedule']),
-                                       'body': {   'status': 'enabled'},
-                                       'method': 'PUT'}],
-                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                          'operator': 'eq',
-                                          'value': '4003'},
-                                      {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                          'operator': 'dx'}],
-                    'recycle': False,
-                    'status': 'enabled'},
-                'off_short': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
-                                        'body': {   'on': False},
-                                        'method': 'PUT'}],
-                     'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                           'operator': 'eq',
-                                           'value': '4002'},
-                                       {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                           'operator': 'dx'}],
-                     'recycle': False,
-                     'status': 'enabled'},
-                'on_short': lambda self: {   'actions': [   {   'address': '/groups/{group}/action'.format(group=self.group),
-                                       'body': {   'scene': '{on_scene}'.format(on_scene=self.scenes['on'])},
-                                       'method': 'PUT'},
-                                   {   'address': '/schedules/{off_schedule_id}'.format(off_schedule_id=self.schedule_ids['off_schedule']),
-                                       'body': {   'status': 'disabled'},
-                                       'method': 'PUT'}],
-                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                          'operator': 'eq',
-                                          'value': '1002'},
-                                      {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                          'operator': 'dx'}],
-                    'recycle': False,
-                    'status': 'enabled'}, 
-                'on_hold': lambda self: {   'actions': [   
-                                                   {   'address': '/schedules/{schedule_id}'.format(schedule_id=self.schedule_ids['on_delay']),
-                                                       'body': {   'status': 'enabled'},
-                                                       'method': 'PUT'}],
-                                    'conditions': [   {   'address': '/sensors/{sensor}/state/buttonevent'.format(sensor=self.sensor),
-                                                          'operator': 'eq',
-                                                          'value': '1003'},
-                                                      {   'address': '/sensors/{sensor}/state/lastupdated'.format(sensor=self.sensor),
-                                                          'operator': 'dx'}],
-                                    'recycle': False,
-                                    'status': 'enabled'
-                                }
-            }
-
+config = house.load_or_generate_config('./config')
 hue = Hue(config)
 #hue.get_info_from_rules()
 #hue.get_by_name(name='bedroom', api='schedules')
@@ -296,7 +161,6 @@ office = Room({
             'schedules': standard_schedules
         }, hue);
 office.create_sensor_rules()
-exit(0);
 
 living_room = Room({
             'sensor': 4,
